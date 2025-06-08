@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>INR Arbitrage Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      background-color: #f9f9f9;
+    }
+    h2 {
+      color: #2c3e50;
+    }
+    label, input {
+      display: block;
+      margin-top: 10px;
+    }
+    input {
+      padding: 8px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px;
+      width: 100%;
+      background-color: #2980b9;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #ecf0f1;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Arbitrage Calculator (₹)</h2>
+
+  <label>Odds for Team A:</label>
+  <input type="number" id="odd1" step="0.01" placeholder="e.g. 2.10">
+
+  <label>Odds for Team B:</label>
+  <input type="number" id="odd2" step="0.01" placeholder="e.g. 1.95">
+
+  <label>Total Stake (₹):</label>
+  <input type="number" id="stake" step="1" placeholder="e.g. 5000" value="5000">
+
+  <button onclick="calculateArb()">Calculate</button>
+
+  <div class="result" id="output"></div>
+
+  <script>
+    function calculateArb() {
+      const odd1 = parseFloat(document.getElementById("odd1").value);
+      const odd2 = parseFloat(document.getElementById("odd2").value);
+      const stake = parseFloat(document.getElementById("stake").value);
+
+      if (!odd1 || !odd2 || !stake) {
+        document.getElementById("output").innerText = "Please enter valid odds and stake.";
+        return;
+      }
+
+      const inv1 = 1 / odd1;
+      const inv2 = 1 / odd2;
+      const arbPercent = (inv1 + inv2) * 100;
+
+      if (arbPercent >= 100) {
+        document.getElementById("output").innerText = 
+          `No arbitrage opportunity. Arbitrage % is ${arbPercent.toFixed(2)}%.`;
+        return;
+      }
+
+      const stake1 = Math.ceil(stake * inv1 / (inv1 + inv2));
+      const stake2 = Math.ceil(stake * inv2 / (inv1 + inv2));
+      const totalActualStake = stake1 + stake2;
+      const profit = Math.min(stake1 * odd1, stake2 * odd2) - totalActualStake;
+
+      document.getElementById("output").innerHTML = `
+        ✅ <strong>Arbitrage Opportunity!</strong><br><br>
+        Bet ₹${stake1} on Team A at odds ${odd1}<br>
+        Bet ₹${stake2} on Team B at odds ${odd2}<br><br>
+        🔁 Total Used: ₹${totalActualStake}<br>
+        💰 Guaranteed Profit: <strong>₹${profit.toFixed(2)}</strong><br>
+        📊 Arbitrage Percentage: <strong>${arbPercent.toFixed(2)}%</strong>
+      `;
+    }
+  </script>
+</body>
+</html>
